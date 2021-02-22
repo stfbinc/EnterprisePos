@@ -28,18 +28,27 @@ use Gregwar\Captcha\CaptchaBuilder;
 
 require_once 'models/APIProxy.php';
 
-class users extends APIProxy{
-    public $captchaBuilder = false;
+class searchcustomers extends APIProxy{
 
-    public function __construct(){
-        $this->captchaBuilder = new CaptchaBuilder;
-    }
+    public function getCustomers(){
 
-    public function login(){
-        $defaultCompany = Session::get("defaultCompany");
-        $result = $this->proxyMethod("getEmployeeInformation&EmployeeLogin={$_POST["username"]}&EmployeePassword={$_POST["password"]}", false);
-        //echo json_encode($result, JSON_PRETTY_PRINT);
-        
+        $user = Session::get("user");
+        $session_id = Session::get("session_id");
+
+        if(isset($_POST)) {
+            $result = $this->proxyMethod("getCustomers", false, "POST", $_POST);
+            echo json_encode($result, JSON_PRETTY_PRINT);
+            die();
+        }            
+        else {
+            return $result = $this->proxyMethod("getAllCustomers", false);
+        } 
+
+        //        echo json_encode($result, JSON_PRETTY_PRINT);
+
+        /* $defaultCompany = Session::get("defaultCompany");
+        $result = $this->proxyMethod("getCustomerInformation&CustomerLogin={$_POST["username"]}&CustomerPassword={$_POST["password"]}", false);
+        //        echo json_encode($result, JSON_PRETTY_PRINT);
         if(!count((array)$result) || $_POST["captcha"] != $_SESSION["captcha"]){
             http_response_code(401);
             $this->captchaBuilder->build();
@@ -51,12 +60,12 @@ class users extends APIProxy{
             ], JSON_PRETTY_PRINT);
         }else{
             $user = [
-                "Employee" => $result[0],
+                "Customer" => $result[0],
                 "language" => Session::get("user") ? Session::get("user")["language"] : "English"
             ];
             Session::set("user", $user);
             echo json_encode($user, JSON_PRETTY_PRINT);
-        }
+        } */
     }
 
     public function logout(){

@@ -162,6 +162,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label class="dropdown-label pull-left"><?php echo $translation->translateLabel("Terminal ID"); ?>:</label>
+                            </div>
+                            <div class="col-xs-6">
+                                <input name="terminalID" type="text" class="form-control pull-right b-none"/>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <div class="row">
                             <div class="col-xs-6">
@@ -233,10 +245,10 @@
                         </li>
                     </ul>
                     <ul>
-                        <?php if(key_exists("Customer", $user)): ?>
+                        <?php if(key_exists("Employee", $user)): ?>
                             <span class="dropdown">
                                 <button class="btn btn-default dropdown-toggle" type="button" id="customerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white; border:0px; background-color:inherit; margin-top:-2px">
-                                    <?php echo $user["Customer"]->CustomerLogin; ?>
+                                    <?php echo $user["Employee"]->EmployeeUserName; ?>
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="customerDropdown" aria-expanded="false">
@@ -245,9 +257,9 @@
                                 </ul>
                             </span>
                             <li>
-                                <a href="#/?page=forms&action=account">
+                                <a href="#/?page=forms&action=searchcustomers">
                                     <?php
-                                        echo $translation->translateLabel("Account");
+                                        echo $translation->translateLabel("Select Customers");
                                     ?>
                                 </a>
                             </li>
@@ -263,8 +275,8 @@
                             </li>
                         <?php endif ?>
                         <!-- <li><a href="#"><?php echo $translation->translateLabel("Wishlist"); ?></a></li> -->
-                        <li><a href="#/?page=forms&action=shoppingcart"><?php echo $translation->translateLabel("Cart"); ?></a></li>
-                        <li><a href="#/?page=forms&action=checkout"><?php echo $translation->translateLabel("Checkout"); ?></a></li>
+                        <!-- <li><a href="#/?page=forms&action=shoppingcart"><?php echo $translation->translateLabel("Cart"); ?></a></li>
+                        <li><a href="#/?page=forms&action=checkout"><?php echo $translation->translateLabel("Checkout"); ?></a></li> -->
                     </ul>
                 </div>
             </div>
@@ -453,7 +465,11 @@
      var loginform = $('#loginform');
      serverProcedureAnyCall("users", "login", loginform.serialize(), function(data, error){
          if(data)
-             location.reload();
+            {
+                //location.href = "index.php#/?page=forms&action=searchcustomers";
+                location.reload();
+            }
+             
          else {
              console.log(data, error);
              var res = error.responseJSON;

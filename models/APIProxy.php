@@ -28,7 +28,9 @@
 class APIProxy {
     public function proxyMethod($procedure, $remoteCall, $method="GET", $body=null){
         $session_id = Session::get("session_id");
-        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&action=procedure&procedure=$procedure&session_id=$session_id", $method, null);
+        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&action=procedure&procedure=$procedure&session_id=$session_id", $method, $body);
+        
+    
         //        echo "page=api&module=forms&path=API/Ecommerce/Ecommerce&action=procedure&procedure=$procedure&session_id=$session_id";
         //echo "$procedure" . json_encode($result);
         //echo $result["response"];

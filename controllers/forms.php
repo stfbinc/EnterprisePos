@@ -91,6 +91,9 @@ class formsController{
                 $name = $_GET["procedure"];
                 $data->$name(true);
             }
+            else if($action == 'searchcustomers'){
+                echo json_encode($data->getCustomers($_POST));
+            }
         }else if($_SERVER['REQUEST_METHOD'] === 'GET') {            
             if(key_exists("getItem", $_GET)){
                 echo json_encode($data->getItem($_GET["getItem"]));
