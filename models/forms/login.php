@@ -28,31 +28,20 @@ use Gregwar\Captcha\CaptchaBuilder;
 
 require_once 'models/APIProxy.php';
 
-class searchcustomers extends APIProxy{
+class login extends APIProxy{ 
+    public $captchaBuilder = false;
 
-    public function getCustomers(){
+    public function __construct(){
+        $this->captchaBuilder = new CaptchaBuilder;
+    }
 
-        $user = Session::get("user");
-        $session_id = Session::get("session_id");
+    public function login(){
+        $defaultCompany = Session::get("defaultCompany");
+        $result = $this->proxyMethod("getEmployeeInformation&EmployeeLogin={$_POST["username"]}&EmployeePassword={$_POST["password"]}", false);
+        //echo json_encode($result, JSON_PRETTY_PRINT);
+        
+        $terminalID = $_POST['terminalID'];
 
-        if(isset($_POST)) {
-
-            $result = $this->proxyMethod("getCustomers", false, "POST", $_POST);
-            echo json_encode($result, JSON_PRETTY_PRINT);
-            die();
-        }            
-        else {
-            $result = $this->proxyMethod("getAllCustomers", false);
-            echo json_encode($result, JSON_PRETTY_PRINT);
-            die();
-            
-        } 
-
-        //        echo json_encode($result, JSON_PRETTY_PRINT);
-
-        /* $defaultCompany = Session::get("defaultCompany");
-        $result = $this->proxyMethod("getCustomerInformation&CustomerLogin={$_POST["username"]}&CustomerPassword={$_POST["password"]}", false);
-        //        echo json_encode($result, JSON_PRETTY_PRINT);
         if(!count((array)$result) || $_POST["captcha"] != $_SESSION["captcha"]){
             http_response_code(401);
             $this->captchaBuilder->build();
@@ -64,12 +53,25 @@ class searchcustomers extends APIProxy{
             ], JSON_PRETTY_PRINT);
         }else{
             $user = [
-                "Customer" => $result[0],
+                "Employee" => $result[0],
                 "language" => Session::get("user") ? Session::get("user")["language"] : "English"
             ];
             Session::set("user", $user);
+
+            // If Terminal ID Validate is True
+            // Check Terminal ID with Employee Logged IN TerminalID, If matches., 
+                // --> Get its shift ID, 
+                // --> and Redirect to Customer Selection page ., 
+            // If not matched., Already Shift is Opened in the Logged IN TerminalID 
+            
+            // If Terminal ID Validate is False., Check the Shift ID with Employee
+            // Get Shift ID for the Logged in Employee., 
+
+            // Check the Shift ID exist, 
+            // if yes., redirect to customer selection screen, or ask for new shift selection screen
+
             echo json_encode($user, JSON_PRETTY_PRINT);
-        } */
+        }
     }
 
     public function logout(){

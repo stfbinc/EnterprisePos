@@ -138,7 +138,7 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <form id="loginform">
+                <form id="loginform-top">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-xs-6">
@@ -202,7 +202,7 @@
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal" onclick="$('#registerDialog').modal('show');">
                     <?php echo $translation->translateLabel("Register"); ?>
                 </button>
-                <button type="button" class="btn btn-primary" id="loginButton">
+                <button type="button" class="btn btn-primary" id="loginButton1">
                     <?php echo $translation->translateLabel("Login"); ?>
                 </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -249,7 +249,6 @@
                             <span class="dropdown">
                                 <button class="btn btn-default dropdown-toggle" type="button" id="customerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white; border:0px; background-color:inherit; margin-top:-2px">
                                     <?php echo $user["Employee"]->EmployeeUserName; ?>
-                                    <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="customerDropdown" aria-expanded="false">
                                     <li><a href="javascript:;" id="logoutButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Log out"); ?></a>
@@ -263,8 +262,12 @@
                                     ?>
                                 </a>
                             </li>
+                            <li><a href="javascript:;" id="logoutButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Log out"); ?></a>
+                            </li>
                         <?php else: ?>
-                            <li><a href="javascript:;" onclick="$('#loginDialog').modal('show');">
+                            <li>
+                            <!-- <a href="javascript:;" onclick="$('#loginDialog').modal('show');"> -->
+                            <a href="#/?page=index&action=login" >
                                 <?php
                                     if(key_exists("Customer", $user))
                                         echo $user["Customer"]->CustomerLogin;
@@ -376,7 +379,7 @@
      });
  }
 
- serverProcedureAnyCall("products", "getFamilies", [], function(data){
+ /* serverProcedureAnyCall("products", "getFamilies", [], function(data){
      var _html = '', ind, families = JSON.parse(data);
      for(ind in families)
          _html += "<option value=\"" + ind + "\">" + families[ind].FamilyName + "</option>\n";
@@ -398,7 +401,7 @@
          _html += " <li><a href=\"#\">" + list[ind].CurrencyID + "</a></li>\n";
 
      $("#currencyChooser").html(_html);
- });
+ }); */
 
  var registerCaptcha = "<?php echo $oscope->captchaBuilder->getPhrase(); ?>";
  $('#registerButton').click(async function(){

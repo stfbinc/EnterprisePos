@@ -120,10 +120,10 @@ $('#searchCustomers').submit(function(){
                     table_data = '<tbody><tr class="grid-header" style="font-size:13px;"><th scope="col">Customer ID</th><th scope="col">Last Name</th><th scope="col">Customer Name</th><th scope="col">Email</th><th scope="col">Phone No</th></tr>';
 
                     $.each(customers, function(index, customer){        
-                        table_data +='<tr class="grid-row"><td><a id="UserID_'+index+'" href="/?CustomerID='+customer.CustomerID+'" style="color:Black;font-size:14px;text-decoration:none;">'+customer.CustomerID+'</a></td><td style="font-size:14px;">&nbsp;</td><td style="font-size:14px;">'+customer.CustomerName+'</td><td style="font-size:14px;">'+customer.CustomerEmail+'</td><td style="font-size:14px;">'+customer.CustomerPhone+'</td></tr>';
+                        table_data +='<tr class="grid-row"><td><a id="UserID_'+index+'" href="index.php#/?page=forms&action=scanitems&CustomerID='+customer.CustomerID+'" style="color:Black;font-size:14px;text-decoration:none;">'+customer.CustomerID+'</a></td><td style="font-size:14px;">&nbsp;</td><td style="font-size:14px;">'+customer.CustomerName+'</td><td style="font-size:14px;">'+customer.CustomerEmail+'</td><td style="font-size:14px;">'+customer.CustomerPhone+'</td></tr>';
                   
                     });
-                   table_data += '</tbody>'; 
+                    table_data += '</tbody>'; 
                 }
 
                 jQuery('#searchCustomers_Table').html(table_data);

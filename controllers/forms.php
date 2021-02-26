@@ -55,7 +55,8 @@ class formsController{
             ]);
         
         $action = $this->action = $this->path =  $_GET["action"];
-
+        $empID = '';
+        
         switch($this->action){
         case "loadcontent":
         case "products" :
@@ -63,6 +64,12 @@ class formsController{
         case "search" :
         case "order":
         case "account":
+        case "openshift":
+            if($user){
+                $empID = $user['Employee']->EmployeeID;
+                $terminalID = $user['TerminalID'];
+            }
+            break;
         case "checkout":
             $data = new APIProxy();
             break;

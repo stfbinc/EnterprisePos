@@ -212,7 +212,7 @@
 	<?php require "nav/topbar.php"; ?>
 
 	<div id="content">
-	    <?php $api->get("forms", "products"); ?>
+	    <?php $api->get("index", "login"); ?>
 	</div>
 	
 	<!-- footer start -->

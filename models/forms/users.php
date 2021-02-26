@@ -30,6 +30,9 @@ require_once 'models/APIProxy.php';
 
 class users extends APIProxy{
     public $captchaBuilder = false;
+    
+    public $validateTerminalID = false;
+    public $shiftID = '';
 
     public function __construct(){
         $this->captchaBuilder = new CaptchaBuilder;
@@ -40,6 +43,8 @@ class users extends APIProxy{
         $result = $this->proxyMethod("getEmployeeInformation&EmployeeLogin={$_POST["username"]}&EmployeePassword={$_POST["password"]}", false);
         //echo json_encode($result, JSON_PRETTY_PRINT);
         
+        $terminalID = $_POST['terminalID'];
+
         if(!count((array)$result) || $_POST["captcha"] != $_SESSION["captcha"]){
             http_response_code(401);
             $this->captchaBuilder->build();
@@ -52,11 +57,131 @@ class users extends APIProxy{
         }else{
             $user = [
                 "Employee" => $result[0],
-                "language" => Session::get("user") ? Session::get("user")["language"] : "English"
+                "language" => Session::get("user") ? Session::get("user")["language"] : "English",
+                "TerminalID" => $terminalID
             ];
             Session::set("user", $user);
-            echo json_encode($user, JSON_PRETTY_PRINT);
+
+            $empID = $user["Employee"]->EmployeeID;
+
+            if($this->validateTerminalID){
+                $empTerminalID = $this->lfValidateTerminalID($empID);
+
+                if($empTerminalID == $terminalID){
+                    $this->shiftID = $this->getShiftID($terminalID);
+                    $user['OpenShift'] = 0;
+                }
+                else {
+                    // Print Terminal ID which the Employee has
+                    $user['OpenShift'] = 0;
+                }
+            }
+            else {
+
+                $shiftData = $this->CheckForExistingShiftOfEmployee($empID);
+                // If Terminal ID Validate is False., Check the Shift ID with Employee
+                 
+                //$shiftData = $shiftData->ShiftID;
+                $this->shiftID = $shiftData;
+                 // Get Shift ID for the Logged in Employee.,
+                if($this->shiftID ){
+
+                     // Check the Shift ID exist, 
+                    // if yes., redirect to customer selection screen
+                    
+                    //Session::set('ShiftID', $this->shiftID);
+                    $user['ShiftID'] = $this->shiftID;
+                    Session::set("user", $user);
+                    $user['OpenShift'] = 0;
+                }
+                else{
+                    // Ask for new shift selection screen
+                    $user['OpenShift'] = 1;
+                }
+            }
+            // If Terminal ID Validate is True
+            // Check Terminal ID with Employee Logged IN TerminalID, If matches., 
+                // --> Get its shift ID, 
+                // --> and Redirect to Customer Selection page ., 
+            // If not matched., Already Shift is Opened in the Logged IN TerminalID       
+
+            echo json_encode( $user, JSON_PRETTY_PRINT);
         }
+    }
+
+    public function openshift(){
+
+        $defaultCompany = Session::get("defaultCompany");
+        $session_id = Session::get("session_id");
+
+        $insertArray = array( 'CompanyID' => $defaultCompany['CompanyID'], 'DivisionID' => $defaultCompany['DivisionID'], 'DepartmentID' => $defaultCompany['DepartmentID'], 
+        'EmployeeID' => $_POST['EmployeeID'], 'terminalID' => $_POST['TerminalID'], 'CashInDrawer' => $_POST['CashInDrawer'], 'Date' => $_POST['Date'], 'Time' => $_POST['Time'], 'LastClerk' => $_POST['LastClerk'], 'ShiftOpen' => 1);
+        
+        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$_POST['EmployeeID']."&action=procedure&procedure=newShiftforEmployeeID&session_id=$session_id", "POST", $insertArray)["response"];
+        //echo json_encode($result, JSON_PRETTY_PRINT);
+       
+        //$result = API_request("page=api&module=forms&path=API/Ecommerce/Helpdesk&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getEmployeeShiftIDByempID", "POST", $_POST )["response"];
+        $result = (array)$result;
+
+        if($result['ShiftID']){
+            $user = Session::get("user");
+            $user['ShiftID'] = $result['ShiftID'];
+            Session::set("user", $user);
+        }
+
+         echo json_encode( array('ShiftID' => $result['ShiftID'] ), JSON_PRETTY_PRINT);
+    }
+
+    public function getShiftID($termID){
+
+        $defaultCompany = Session::get("defaultCompany");
+        $session_id = Session::get("session_id");
+
+        //$result = $this->proxyMethod("getEmployeeShiftIDByempID&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID, false);
+        
+        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&TerminalID=".$termID."&action=procedure&procedure=getShiftIDofTerminalID&session_id=$session_id", "GET", null)["response"];
+        //echo json_encode($result, JSON_PRETTY_PRINT);
+       
+        //$result = API_request("page=api&module=forms&path=API/Ecommerce/Helpdesk&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getEmployeeShiftIDByempID", "POST", $_POST )["response"];
+        $result = (array)$result;
+
+        return $result['ShiftID'];
+    }
+
+    public function lfValidateTerminalID($empID){
+
+        $defaultCompany = Session::get("defaultCompany");
+        $session_id = Session::get("session_id");
+
+        //$result = $this->proxyMethod("getEmployeeShiftIDByempID&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID, false);
+        
+        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getTerminalIDofEmployeeID&session_id=$session_id", "GET", null)["response"];
+        //echo json_encode($result, JSON_PRETTY_PRINT);
+       
+        //$result = API_request("page=api&module=forms&path=API/Ecommerce/Helpdesk&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getEmployeeShiftIDByempID", "POST", $_POST )["response"];
+        $result = (array)$result;
+        return $result['TerminalID'];
+    } 
+
+    public function CheckForExistingShiftOfEmployee($empID){
+
+
+        $defaultCompany = Session::get("defaultCompany");
+        $session_id = Session::get("session_id");
+
+        //$result = $this->proxyMethod("getEmployeeShiftIDByempID&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID, false);
+        
+        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getEmployeeShiftIDByempID&session_id=$session_id", "GET", null)["response"];
+        //echo json_encode($result, JSON_PRETTY_PRINT);
+    
+
+        //$result = API_request("page=api&module=forms&path=API/Ecommerce/Helpdesk&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getEmployeeShiftIDByempID", "POST", $_POST )["response"];
+        $result = (array)$result;
+
+        return $result['ShiftID'];
+        //echo json_encode($result, JSON_PRETTY_PRINT);
+        
+        
     }
 
     public function logout(){
