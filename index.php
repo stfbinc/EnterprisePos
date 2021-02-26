@@ -70,7 +70,7 @@ class app{
         }
         if(!file_exists('controllers/' . $this->page . '.php'))
             throw new Exception("controller ". 'controllers/' . $this->page . '.php' . "is not found");
-        require 'controllers/' . $this->page . '.php';
+        require_once 'controllers/' . $this->page . '.php';
         $controllerName = $this->page. 'Controller';
         $this->controller = new $controllerName();
     }

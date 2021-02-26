@@ -1,5 +1,5 @@
 <?php
-session_name("EnterpriseCart");
+session_name("EnterprisePos");
 session_start();
 
 if((key_exists("config", $_GET) && ($configName = $_GET["config"]) != 'default') ||
