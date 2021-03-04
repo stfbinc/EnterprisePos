@@ -29,6 +29,7 @@
   Last Modified by: Nikita Zaharov
 */
 
+
 class api{
     private $app;
     
@@ -37,7 +38,7 @@ class api{
     }
 
     public function get($page, $action){
-        require 'controllers/' . $page . '.php';
+        require_once 'controllers/' . $page . '.php';
         $controllerName = $page. 'Controller';
         $controller = new $controllerName();
         $this->app->page = $page;

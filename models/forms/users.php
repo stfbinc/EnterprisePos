@@ -60,7 +60,7 @@ class users extends APIProxy{
                 "language" => Session::get("user") ? Session::get("user")["language"] : "English",
                 "TerminalID" => $terminalID
             ];
-            Session::set("user", $user);
+            
 
             $empID = $user["Employee"]->EmployeeID;
 
@@ -91,7 +91,7 @@ class users extends APIProxy{
                     
                     //Session::set('ShiftID', $this->shiftID);
                     $user['ShiftID'] = $this->shiftID;
-                    Session::set("user", $user);
+                    //Session::set("user", $user);
                     $user['OpenShift'] = 0;
                 }
                 else{
@@ -99,6 +99,9 @@ class users extends APIProxy{
                     $user['OpenShift'] = 1;
                 }
             }
+            
+            Session::set("user", $user);
+
             // If Terminal ID Validate is True
             // Check Terminal ID with Employee Logged IN TerminalID, If matches., 
                 // --> Get its shift ID, 
@@ -189,6 +192,8 @@ class users extends APIProxy{
             "language" => Session::get("user") ? Session::get("user")["language"] : "English"
         ]);
         Session::set("defaultCompany", null);
+        Session::set("shoppingCart", null);
+        
         echo json_encode([]);
     }
 

@@ -28,22 +28,8 @@ use Gregwar\Captcha\CaptchaBuilder;
 
 require_once 'models/APIProxy.php';
 
-class scanitems extends APIProxy{
-    public function getPOSItems(){
-        
-        $user = Session::get("user");
-        $session_id = Session::get("session_id");
-        
+class poscart extends APIProxy{
 
-        if(isset($_POST['UPC']) ){
-            $UPCcode = $_POST['UPC'];
-            
-            $result = $this->proxyMethod("getPOSItems&UPCcode={$UPCcode}&sesson_id={$session_id}", false);
-            
-            echo json_encode($result, JSON_PRETTY_PRINT);
-            die();
-        }
-        return '';
-    }
+    
 }
 ?>

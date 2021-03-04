@@ -59,32 +59,22 @@
     </table>  
  </form>             
 
-
+    <p>&nbsp;</p>
     <div id="ContentPlaceHolder_panelContainer" style="width:100%;">
         
             <div class="headerrow">
-                <span id="ContentPlaceHolder_ExistingCustomers">Existing Customers</span>
+                <h3><span id="ContentPlaceHolder_ExistingCustomers">Existing Customers</span></h3> 
             </div>
 
             <div>
-            <table cellspacing="0" rules="all" border="1" id="searchCustomers_Table" style="height:300px;width:100%;border-collapse:collapse;">
+            <table cellspacing="0" rules="all" border="1" id="searchCustomers_Table" style="height:100px;width:100%;border-collapse:collapse;">
                 <tbody><tr class="grid-header" style="font-size:13px;">
                     <th scope="col">Customer ID</th><th scope="col">Last Name</th>
                     <th scope="col">Customer Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Phone No</th>
                 </tr>
-                
-                <tr class="grid-row">
-                    <td>
-                            <a id="UserID_0" href="/?CustomerID=DEERE" style="color:Black;font-size:14px;text-decoration:none;">DEERE</a>
-                        </td>
-                        <td style="font-size:14px;">&nbsp;</td><td style="font-size:14px;">Deere Heavy Equipment</td><td style="font-size:14px;">sales@stfb.com</td><td style="font-size:14px;">922-922-1243</td>
-                </tr><tr class="grid-alternative-row">
-                    <td>
-                            <a id="UserID_1" href="/?CustomerID=dfd" style="color:Black;font-size:14px;text-decoration:none;">dfd</a>
-                        </td><td style="font-size:14px;">dfd</td><td style="font-size:14px;">df</td><td style="font-size:14px;">ix@2du.ru</td><td style="font-size:14px;">999000</td>
-                </tr>
+                <tr></tr>
             </tbody></table>
         </div>
         

@@ -1,6 +1,7 @@
 <?php
     $cartSettings = $data->getCartSettings();
-    $company = $data->getCompany();
+	$company = $data->getCompany();
+
 ?>
 
 <!DOCTYPE html>  
@@ -212,17 +213,25 @@
 	<?php require "nav/topbar.php"; ?>
 
 	<div id="content">
-	    <?php $api->get("index", "login"); ?>
+		<?php
+			if(key_exists("Employee", $user))
+				$api->get("forms", "searchcustomers");
+			else
+				$api->get("index", "login");
+		?>
 	</div>
 	
 	<!-- footer start -->
 	<footer>
+	<?php 
+	$defaultCompany = Session::get("defaultCompany");
+	?>
 	    <!-- footer-top-area start -->
 	    <div class="footer-top-area">
 		<div class="container">
 		    <div class="row">
 			<!-- footer-widget start -->
-			<div class="col-lg-3 col-md-3 col-sm-4">
+			<div class="col-lg-6 col-md-6 col-sm-4">
 			    <div class="footer-widget">
 				<div class="footer-logo"><a href="#"><img style="width:40px; height:40px; margin-bottom:10px" src="<?php echo $linksMaker->makeEnterpriseXImageLink($scope, $company, "SmallLogo"); ?>" /> <?php echo $company->CompanyName; ?></a></div>								
 				<!-- <p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. .</p>
@@ -235,111 +244,16 @@
 			</div>
 			<!-- footer-widget end -->
 			<!-- footer-widget start -->
-			<div class="col-lg-3 col-md-3 hidden-sm">
+			<div class="col-lg-6 col-md-6 hidden-sm">
 			    <div class="footer-widget">
-				<h3>Information</h3>
-				<ul class="footer-menu">
-				    <?php if($cartSettings->AboutUsPage): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=AboutUsPage">About Us</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->CustomerService): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=CustomerService">Customer Service</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->PrivacyPolicy): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=PrivacyPolicy">Privacy Policy</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->SiteMap): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=SiteMap">Site Map</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->Contact): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=Contact">Contact</a></li>
-				    <?php endif; ?>
-				</ul>
-			    </div>
-			</div>
-			<!-- footer-widget end -->
-			<!-- footer-widget start -->
-			<div class="col-lg-3 col-md-3 col-sm-4">
-			    <div class="footer-widget">
-				<h3>Our services</h3>
-				<ul class="footer-menu">
-				    <?php if($cartSettings->ShippingReturns): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=ShippingReturns">Shipping & Returns</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->SecureShopping): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=SecureShopping">Secure Shopping</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->InternationalShipping): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=InternationalShipping">International Shipping</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->Affiliates): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=Affiliates">Affiliates</a></li>
-				    <?php endif; ?>
-				    <?php if($cartSettings->Help): ?>
-					<li><a href="#/?page=forms&action=loadcontent&content=Help">Help</a></li>
-				    <?php endif; ?>
-				</ul>
-			    </div>
-			</div>
-			<!-- footer-widget end -->
-			<!-- footer-widget start -->
-			<div class="col-lg-3 col-md-3 col-sm-4">
-			    <div class="footer-widget">		
-                                <h3>NEWSLETTER SIGNUP</h3>
-                                <div class="subscribe-title">                               
-                                    <form action="https://stfb.net/EnterpriseX/index.php?config=STFBEnterprise&page=help&method=newsletterSubscribe" method="post"">
-					<div class="subscribe-form">
-					    <input type="email" name="EMAIL" placeholder="Your Email.........">
-					    <button>
-						subscribe</button>
-					</div>
-                                    </form>
-                                </div>						
-                                <div class="widget-icon">
-				    <?php if($cartSettings->Facebook): ?>
-					<a href="<?php echo $cartSettings->FacebookUrl; ?>"><i class="fa fa-facebook"></i></a>
-				    <?php endif; ?>
-				    <?php if($cartSettings->Twitter): ?>
-					<a href="<?php echo $cartSettings->TwitterUrl; ?>"><i class="fa fa-twitter"></i></a>
-				    <?php endif; ?>
-				    <?php if($cartSettings->LinkedIn): ?>
-					<a href="<?php echo $cartSettings->LinkedInUrl; ?>"><i class="fa fa-linkedin"></i></a>
-				    <?php endif; ?>
-				    <?php if($cartSettings->GooglePlus): ?>
-					<a href="<?php echo $cartSettings->GooglePlusUrl; ?>"><i class="fa fa-google-plus"></i></a>
-				    <?php endif; ?>
-				    <?php if($cartSettings->Instagram): ?>
-					<a href="<?php echo $cartSettings->InstagramUrl; ?>"><i class="fa fa-instagram"></i></a>
-				    <?php endif; ?>
-				    <?php if($cartSettings->YouTube): ?>
-					<a href="<?php echo $cartSettings->YouTubeUrl; ?>"><i class="fa fa-youtube-square"></i></a>
-				    <?php endif; ?>
-				</div>
-			    </div>
-			</div>
-			<!-- footer-widget end -->
-		    </div>
-		</div>
-	    </div>
-	    <!-- footer-top-area end -->
-	    <!-- footer-bottom-area start -->
-	    <div class="footer-bottom-area">
-		<div class="container">
-		    <div class="row">
-			<div class="col-lg-6 col-md-6 col-sm-6">
-			    <div class="copyright">
-				<p>Copyright © <a href="#" target="_blank"><?php echo $company->CompanyName; ?></a> All Rights Reserved</p>
-			    </div>
-			</div>
-			<div class="col-lg-6 col-md-6 col-sm-6">
-			    <div class="payment-img">
-				<img src="assets/img/payment.png" alt="" />
+				<h3><?php echo $defaultCompany['CompanyID']; ?> / <?php echo $defaultCompany['DivisionID']; ?> / <?php echo $defaultCompany['DepartmentID']; ?></h3>
+				
 			    </div>
 			</div>
 		    </div>
 		</div>
 	    </div>
-	    <!-- footer-bottom-area end -->
+	    
 	</footer>
 	<!-- footer end -->
 	<!-- Color Variations 
@@ -462,5 +376,26 @@
 	     });
 	 }
 	</script>
+
+	<Style>
+				
+		footer {
+			bottom: 0;
+			width: 100%;
+		}
+		.header-bottom-area {
+			background-color : #333;
+		}
+		.logo {
+			background-color : #fff !important;
+		}
+
+		#content {
+			min-height : 600px;
+		}
+		.footer-top-area {
+			padding: 20px 0;
+		}
+	</style>
     </body>
 </html>

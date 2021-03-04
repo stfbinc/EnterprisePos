@@ -98,6 +98,7 @@
      serverProcedureAnyCall("users", "login", loginform.serialize(), function(data, error){
          if(data)
             {
+
                 data = JSON.parse(data);
                 console.log(data);
                 console.log(data.OpenShift)
@@ -105,19 +106,21 @@
                     reload_url = "index.php#/?page=forms&action=openshift";
                 }
                 else {
-                    reload_url = "index.php#/?page=forms&action=searchcustomers";
+
+                    location.reload();
+                    //reload_url = "index.php#/?page=forms&action=searchcustomers";
                 }
                 reload = true;    
     
                 if(reload) {
-                    location.href = reload_url; 
+                    window.location.href = reload_url; 
                 }     
             }
              
          else {
              console.log(data, error);
              var res = error.responseJSON;
-
+             
              if(res.wrong_user){
                  $("#captcha").addClass("has-error");
                  $("#username").addClass("has-error");

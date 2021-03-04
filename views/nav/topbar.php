@@ -138,7 +138,7 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <form id="loginform-top">
+                <!-- <form id="loginform-top">
                     <div class="form-group">
                         <div class="row">
                             <div class="col-xs-6">
@@ -187,7 +187,7 @@
                             </div>
                         </div>
                     </div>
-                </form>
+                </form> -->
             </div>
             <div class="modal-footer">
                 <div class="row">
@@ -218,6 +218,7 @@
         <div class="row">
             <div class="col-lg-6 col-md-6 col-sm-4">
                 <div class="welcome">
+                    
                     <!--  <span class="phone">Phone: +12345 67890</span> <span class="hidden-sm">/</span>
                          <span class="email hidden-sm">Email: yourname@domain.com</span> -->
                 </div>
@@ -250,10 +251,10 @@
                                 <button class="btn btn-default dropdown-toggle" type="button" id="customerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white; border:0px; background-color:inherit; margin-top:-2px">
                                     <?php echo $user["Employee"]->EmployeeUserName; ?>
                                 </button>
-                                <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="customerDropdown" aria-expanded="false">
+                               <!--  <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="customerDropdown" aria-expanded="false">
                                     <li><a href="javascript:;" id="logoutButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Log out"); ?></a>
                                     </li>
-                                </ul>
+                                </ul> -->
                             </span>
                             <li>
                                 <a href="#/?page=forms&action=searchcustomers">
@@ -299,7 +300,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-5 col-sm-5 col-xs-6 hidden-xs">
-                        <div class="header-search">
+                        <!-- <div class="header-search">
                             <form id="searchForm" onsubmit="return false">
                                 <?php if($scope["config"]["software"] == "Cart"): ?>
                                     <select name="family" id="searchFamilies" style="width:auto; position: static;">
@@ -308,7 +309,7 @@
                                 <input type="text" placeholder="search product..." name="text" style="width:auto; margin-left: -5px;" />
                                 <button onclick="search();"><i class="fa fa-search"></i></button>
                             </form>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12 account-wrap">
                         <!-- Header shopping cart -->
@@ -347,7 +348,7 @@
             </div>
         </div>
 
-        <?php require "menu.php"; ?>
+        <?php //require "menu.php"; ?>
     </header>
 </div>
 <script>
@@ -379,7 +380,7 @@
      });
  }
 
- /* serverProcedureAnyCall("products", "getFamilies", [], function(data){
+ serverProcedureAnyCall("products", "getFamilies", [], function(data){
      var _html = '', ind, families = JSON.parse(data);
      for(ind in families)
          _html += "<option value=\"" + ind + "\">" + families[ind].FamilyName + "</option>\n";
@@ -401,7 +402,7 @@
          _html += " <li><a href=\"#\">" + list[ind].CurrencyID + "</a></li>\n";
 
      $("#currencyChooser").html(_html);
- }); */
+ });
 
  var registerCaptcha = "<?php echo $oscope->captchaBuilder->getPhrase(); ?>";
  $('#registerButton').click(async function(){
@@ -463,7 +464,7 @@
      }
      return;
  });
- 
+ /* 
  $('#loginButton').click(function(){
      var loginform = $('#loginform');
      serverProcedureAnyCall("users", "login", loginform.serialize(), function(data, error){
@@ -492,12 +493,13 @@
          }
      });
      
- });
+ }); */
 
  $('#logoutButton').click(function(){
      serverProcedureAnyCall("users", "logout", undefined, function(data, error){
          if(data)
-             location.reload();
+            //location.href = 'index.php#/?page=index&action=login';
+            location.reload();
          else
              console.log("login failed");
      });     

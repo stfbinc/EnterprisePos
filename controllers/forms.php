@@ -47,12 +47,17 @@ class formsController{
     
     public function process($app){
         $user;
-        if(key_exists("user", $_SESSION))
+        if(key_exists("user", $_SESSION)){
             $user = Session::get("user");
+        } 
         else
-            Session::set("user",$user = [
+        {
+
+           Session::set("user",$user = [
                 "language" => "English"
             ]);
+        }
+            /*  */
         
         $action = $this->action = $this->path =  $_GET["action"];
         $empID = '';
@@ -60,6 +65,8 @@ class formsController{
         switch($this->action){
         case "loadcontent":
         case "products" :
+            $data = new APIProxy();
+            break;
         case "index":
         case "search" :
         case "order":
@@ -110,7 +117,6 @@ class formsController{
                 echo "{ \"message\" : \"ok\"}";
             }else{
                 $translation = new translation($this->user["language"]);
-            
                 
                 $user = $this->user;
                 $scope = json_decode(json_encode($this), true);
