@@ -251,10 +251,10 @@
                                 <button class="btn btn-default dropdown-toggle" type="button" id="customerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white; border:0px; background-color:inherit; margin-top:-2px">
                                     <?php echo $user["Employee"]->EmployeeUserName; ?>
                                 </button>
-                               <!--  <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="customerDropdown" aria-expanded="false">
+                                <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="customerDropdown" aria-expanded="false">
                                     <li><a href="javascript:;" id="logoutButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Log out"); ?></a>
                                     </li>
-                                </ul> -->
+                                </ul>
                             </span>
                             <li>
                                 <a href="#/?page=forms&action=searchcustomers">
@@ -263,8 +263,25 @@
                                     ?>
                                 </a>
                             </li>
-                            <li><a href="javascript:;" id="logoutButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Log out"); ?></a>
-                            </li>
+                            <span class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="adminDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color:white; border:0px; background-color:inherit; margin-top:-2px">
+                                    Administration
+                                </button>
+                                <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="adminDropdown" aria-expanded="false">
+                                    <li><a href="#/?page=forms&action=transactionlog" id="transLogButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Transaction Log"); ?></a>
+                                    </li>
+                                    <li><a href="javascript:;" id="orderLogButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Order Log"); ?></a>
+                                    </li>
+                                    <li><a href="javascript:;" id="shiftOpenButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Open Shift"); ?></a>
+                                    </li>
+                                    <li><a href="#/?page=forms&action=closeshift" id="shiftCloseButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Close Shift"); ?></a>
+                                    </li>
+                                    <li><a href="javascript:;" id="shiftReportButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Print Shift Report"); ?></a>
+                                    </li>
+                                    <li><a href="javascript:;" id="shiftStatusButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Shift Status"); ?></a>
+                                    </li>
+                                </ul>
+                            </span>
                         <?php else: ?>
                             <li>
                             <!-- <a href="javascript:;" onclick="$('#loginDialog').modal('show');"> -->

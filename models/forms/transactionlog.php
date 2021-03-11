@@ -28,7 +28,7 @@ use Gregwar\Captcha\CaptchaBuilder;
 
 require_once 'models/APIProxy.php';
 
-class openshift extends APIProxy{
+class transactionlog extends APIProxy{
     public $captchaBuilder = false;
     
     public $validateTerminalID = false;
@@ -37,6 +37,29 @@ class openshift extends APIProxy{
     public function __construct(){
         $this->captchaBuilder = new CaptchaBuilder;
     }
-    
+
+    public function getShiftDetails(){
+      
+      $user = Session::get('user');
+      $session_id = Session::get("session_id");
+
+      $args = array('ShiftID' => $user['ShiftID'], 'EmployeeID' => $user['Employee']->EmployeeID);
+
+      $result = $this->proxyMethod("getShiftDetails", false, "POST", $args);
+      return json_encode($result, JSON_PRETTY_PRINT);
+
+    }
+
+    public function getTransactionLog(){
+
+      $user = Session::get('user');
+      $session_id = Session::get("session_id");
+      //, 'CustomerID' => $user['CustomerID']
+      $args = array('ShiftID' => $user['ShiftID'], 'EmployeeID' => $user['Employee']->EmployeeID);
+
+      $result = $this->proxyMethod("getTransactionLog", false, "POST", $args);
+      return json_encode($result, JSON_PRETTY_PRINT);
+
+    }
 
 }

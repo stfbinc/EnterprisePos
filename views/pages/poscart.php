@@ -1,7 +1,14 @@
-<?php
-    $user = Session::get('user');
-?>
+<?php 
+$user = Session::get('user');
 
+if(!key_exists("Employee", $user)):  ?>
+    <script>
+        var reload_url = "index.php#/?page=index&action=login";
+        window.location.href = reload_url;
+    </script>
+<?php 
+    endif;
+?>
  <div id="content">
     <div style="padding:50px;">
         <div class="row">
@@ -231,28 +238,28 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnCheckoutCash" value="Checkout cash" id="ContentPlaceHolder_btnCheckoutCash" class="funcBtn btn btn-default ">
+                                <input type="button" name="btnCheckoutCash" value="Checkout cash" id="btnCheckoutCash" class="funcBtn btn btn-default " onclick="window.location = '#/?page=forms&action=checkout'">
                             </div>
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnCheckoutCredit" value="Checkout credit" id="ContentPlaceHolder_btnCheckoutCredit" class="funcBtn btn btn-default">
+                                <input type="button" name="btnCheckoutCredit" value="Checkout credit" id="ContentPlaceHolder_btnCheckoutCredit" class="funcBtn btn btn-default" onclick="window.location = '#/?page=forms&action=checkout'">
                             </div>
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnCheckoutPrice" value="Price Change" id="ContentPlaceHolder_btnCheckoutPrice" class="funcBtn btn btn-default">
+                                <input type="button" name="btnCheckoutPrice" value="Price Change" id="ContentPlaceHolder_btnCheckoutPrice" class="funcBtn btn btn-default">
                             </div>
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnCheckoutSplit" value="Checkout SPLIT" id="ContentPlaceHolder_btnCheckoutSplit" class="funcBtn  btn btn-default">
+                                <input type="button" name="btnCheckoutSplit" value="Checkout SPLIT" id="ContentPlaceHolder_btnCheckoutSplit" class="funcBtn  btn btn-default" onclick="window.location = '#/?page=forms&action=checkout'">
                             </div>
                             <div class="col-xs-6 col-md-4">
                                 <input type="submit" name="btnApplyDiscount" value="Apply Discount" onclick="ShowDiscount(); return false;" id="ContentPlaceHolder_btnApplyDiscount" class="funcBtn btn btn-default">
                             </div>
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnShiftLog" value="Shift Log" onclick="PopupLoadFile('ShiftReports.aspx'); return false;" id="ContentPlaceHolder_btnShiftLog" class="funcBtn btn btn-default">
+                                <input type="submit" name="btnShiftLog" value="Shift Log" onclick="ShowShiftLog(); return false;" id="ContentPlaceHolder_btnShiftLog" class="funcBtn btn btn-default">
                             </div>
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnCancelOrder" value="Cancel Order" id="ContentPlaceHolder_btnCancelOrder" class="funcBtn btn btn-default">
+                                <input type="submit" name="btnCancelOrder" value="Cancel Order" id="ContentPlaceHolder_btnCancelOrder" class="funcBtn btn btn-default">
                             </div>
                             <div class="col-xs-6 col-md-4">
-                                <input type="submit" name="ctl00$ContentPlaceHolder$btnShiftStatus" value="Shift Status" onclick="ShowShiftStatus(); return false;" id="ContentPlaceHolder_btnShiftStatus" class="funcBtn btn btn-default">
+                                <input type="submit" name="btnShiftStatus" value="Shift Status" onclick="ShowShiftStatus(); return false;" id="btnShiftStatus" class="funcBtn btn btn-default">
                             </div>
                         </div>
                     </div>
@@ -298,6 +305,19 @@
                 else
                     console.log("login failed");
             });
+
+            serverProcedureAnyCall("poscart", "getShiftStatus", undefined, function(data, error){
+                if(data) {
+                    
+                    result = JSON.parse(data);
+                    //var shiftData = result.ShiftInfo;
+                    if(result.html){
+                        $('.shiftStatusContent').html(result.html);
+                    }
+                }
+                else
+                    console.log("login failed");
+            });
             
             function discountOrders(){
                 var percent = $('input[name="Discount"]:checked').val();
@@ -307,7 +327,10 @@
                 var subTotal = checkoutSubtotal - discount_amount;
 
                 $('#discounted_amount').html('$' + formatCurrency(discount_amount) );
+                localStorage.setItem('discount_amount', discount_amount);
+
                 $('#total_after_discount').html('$' + formatCurrency(subTotal) );
+                
                 $('#myModal').hide();
             }
 
@@ -323,7 +346,7 @@
             jQuery(document).tooltip();
 
             function PopupItemInfo(title, description) {
-                jQuery("#popup").empty();
+                /* jQuery("#popup").empty();
                 jQuery("#popup").fadeIn("slow");
                 jQuery("#popup").html(description);
                 jQuery("#popup").dialog({
@@ -342,11 +365,11 @@
                     close: function (event, ui) {
                         $(this).html("");
                     }
-                });
+                }); */
             }
 
             function PopupLoadFile(filename) {
-                jQuery("#popup").empty();
+                /* jQuery("#popup").empty();
                 jQuery("#popup").fadeIn("fast");
                 jQuery("#popup").load(filename).html("<img src='Images/ajax-loader.gif' style='margin-left:500px;margin-top:200px;' alt='loading...'/>");
                 jQuery("#popup").dialog({
@@ -364,7 +387,7 @@
                     close: function (event, ui) {
                         $(this).html("");
                     }
-                });
+                }); */
             }
 
 
@@ -447,9 +470,13 @@
         })
 
             function ShowShiftStatus(){
-
+                $('#shiftStatusModal').modal();
             }
-            
+
+            function ShowShiftLog(){
+                
+            }
+
             function ShowDiscount(filename) {
 
                 jQuery('#myModal').show();
@@ -499,6 +526,19 @@
                     </div>
             </div>
 
+            <div id="shiftStatusModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span class="close_status_modal">&times;</span>
+                        <h2>Shift Status</h2>                                 
+                    </div>
+                    <div class="modal-body shiftStatusContent" id="modal-body">
+                        
+                        
+
+                    </div>
+                </div>
+            </div>
             <!-- The Modal -->
             <div id="myModal" class="modal">
                 <!-- Modal content -->

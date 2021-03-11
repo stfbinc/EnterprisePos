@@ -35,19 +35,18 @@ class searchcustomers extends APIProxy{
         $user = Session::get("user");
         $session_id = Session::get("session_id");
 
-        if(isset($_POST)) {
+         
 
+        if(isset($_POST)) {
             $result = $this->proxyMethod("getCustomers", false, "POST", $_POST);
             echo json_encode($result, JSON_PRETTY_PRINT);
-            die();
         }            
         else {
             $result = $this->proxyMethod("getAllCustomers", false);
             echo json_encode($result, JSON_PRETTY_PRINT);
-            die();
             
         } 
-
+        die();
         //        echo json_encode($result, JSON_PRETTY_PRINT);
 
         /* $defaultCompany = Session::get("defaultCompany");

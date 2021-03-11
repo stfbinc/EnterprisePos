@@ -112,6 +112,35 @@ class users extends APIProxy{
         }
     }
 
+    public function closeshift(){
+
+        $defaultCompany = Session::get("defaultCompany");
+        $session_id = Session::get("session_id");
+
+        $insertArray = array( 'CompanyID' => $defaultCompany['CompanyID'], 'DivisionID' => $defaultCompany['DivisionID'], 'DepartmentID' => $defaultCompany['DepartmentID'], 
+        'EmployeeID' => $_POST['EmployeeID'], 'terminalID' => $_POST['TerminalID'], 'CashInDrawer' => $_POST['CashInDrawer'], 'Date' => $_POST['Date'], 'Time' => $_POST['Time'], 
+        'NextClerk' => $_POST['NextClerk'], 'ShiftID' => $_POST['ShiftID'], 'OpeningBalance' => $_POST['openingBalance'], 'ClosingBalance' => $_POST['closingBalance']);
+        
+        $result = API_request("page=api&module=forms&path=API/Ecommerce/Ecommerce&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$_POST['EmployeeID']."&action=procedure&procedure=closeShiftforEmployeeID&session_id=$session_id", "POST", $insertArray)["response"];
+       /*  echo json_encode($result, JSON_PRETTY_PRINT);
+        die(); */
+        $user = Session::get("user");
+        unset($user['ShiftID']);
+        unset($user['TerminalID']);
+        $user['OpenShift'] = 1;
+        Session::set("user", $user);
+        
+        //$result = API_request("page=api&module=forms&path=API/Ecommerce/Helpdesk&CompanyID=".$defaultCompany['CompanyID']."&DivisionID=".$defaultCompany['DivisionID']."&DepartmentID=".$defaultCompany['DepartmentID']."&EmployeeID=".$empID."&action=procedure&procedure=getEmployeeShiftIDByempID", "POST", $_POST )["response"];
+        /* $result = (array)$result;
+
+        if($result['ShiftID']){
+           
+        } */
+
+        echo json_encode( array('success' => true ), JSON_PRETTY_PRINT);
+
+    }
+
     public function openshift(){
 
         $defaultCompany = Session::get("defaultCompany");
@@ -129,6 +158,7 @@ class users extends APIProxy{
         if($result['ShiftID']){
             $user = Session::get("user");
             $user['ShiftID'] = $result['ShiftID'];
+            $user['OpenShift'] = 0;
             Session::set("user", $user);
         }
 
@@ -183,8 +213,6 @@ class users extends APIProxy{
 
         return $result['ShiftID'];
         //echo json_encode($result, JSON_PRETTY_PRINT);
-        
-        
     }
 
     public function logout(){

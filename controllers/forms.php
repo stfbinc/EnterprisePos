@@ -71,6 +71,8 @@ class formsController{
         case "search" :
         case "order":
         case "account":
+            $data = new APIProxy();
+            break;
         case "openshift":
             if($user){
                 $empID = $user['Employee']->EmployeeID;

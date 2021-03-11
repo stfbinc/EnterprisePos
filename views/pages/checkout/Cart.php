@@ -32,7 +32,124 @@
     $paymentMethods = $data->getPaymentMethods();
     $shipMethods = $data->getShipMethods();
     $cartSettings = $data->getCartSettings();
+    $customer = $data->getCustomerInfo();
+    $user = Session::get('user');
+
+    if($user['OpenShift'] == 1 ){ ?>
+        <script>
+            window.location = "index.php#/?page=forms&action=openshift";
+        </script>
+    <?php }
 ?>
+<script>
+ var checkoutSubtotal = 0,
+     checkoutItems;
+ <?php if(key_exists("Employee", $user)): ?>
+ $("#confirmButton").click(async function(){
+     //var form = $("#checkoutForm");
+     var values = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderScreens/ViewOrders&action=procedure&procedure=getNewItemAllRemote&session_id=${session_id}`, {
+         id : "",                                                                                                                    type : "..fields"
+     });
+     values.CustomerID = "<?php echo $user["Employee"]->CustomerID; ?>";
+    //  values.ShippingName = $("input[name=shipCustomerName]").val();
+    //  values.ShippingAddress1 = $("input[name=shipCustomerAddress1]").val();
+    //  values.ShippingAddress2 = $("input[name=shipCustomerAddress2]").val();
+    //  values.ShippingAddress3 = $("input[name=shipCustomerAddress3]").val();
+    //  values.ShippingCounty = $("input[name=shipCustomerCountry]").val();
+    //  values.ShippingState = $("input[name=shipCustomerState]").val();
+    //  values.ShippingCity = $("input[name=shipCustomerCity]").val();
+    //  values.ShippingZip = $("input[name=shipCustomerZip]").val();
+    //  values.ShipMethodID = $("input[name=ShipMethod]").val();
+    //  values.PaymentMethodID = $("input[name=PaymentMethod]").val();
+     values.Subtotal = values.Total = values.BalanceDue = values.TaxableSubTotal = checkoutSubtotal;
+     //creating order header
+     var OrderHeader = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderScreens/ViewOrders&action=procedure&procedure=insertItemRemote&session_id=${session_id}`, values);
+     //getting template data for order detail
+     
+     var values = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderProcessing/ViewOrdersDetail&action=procedure&procedure=getNewItemAllRemote&session_id=${session_id}`, {
+         id : "",                                                                                                                    type : "..fields"
+     });
+
+     var ind, orderDetails = [], orderDetail, items = checkoutItems.items;
+     for(ind in items){
+         orderDetail = Object.assign({}, values);
+         orderDetail.ItemID = items[ind].ItemID;
+         //       console.log(items[ind].ItemID);
+         orderDetail.OrderNumber = OrderHeader.OrderNumber;
+         orderDetail.OrderQty = items[ind].counter;
+         orderDetail.Description = items[ind].ItemDescription;
+         orderDetail.ItemCost = orderDetail.ItemUnitPrice = items[ind].Price;
+         orderDetails.push(orderDetail);
+     }
+     //      console.log(JSON.stringify(orderDetails, null, 3));
+     //creating order detail records
+     var OrderDetails = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderProcessing/ViewOrdersDetail&action=procedure&procedure=insertItemsRemote&session_id=${session_id}`, orderDetails);
+     //values = JSON.parse(data);
+     //recalculation order header
+     await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderScreens/ViewOrders&action=procedure&procedure=Recalc&session_id=${session_id}`, { OrderNumber : OrderHeader.OrderNumber});
+        /* $("#processorder").val("<?php echo $translation->translateLabel("Print"); ?>");
+        $("#processorder").off("click");
+        $("#processorder").click(function(){
+            Object.assign(document.createElement('a'), { target: '_blank', href: linksMaker.makeEnterpriseXDocreportsLink("order", OrderHeader.OrderNumber)}).click();
+        });
+        Object.assign(document.createElement('a'), { target: '_blank', href: linksMaker.makeEnterpriseXDocreportsLink("order", OrderHeader.OrderNumber)}).click();
+ */
+     var ShiftData = {CustomerID : $("input[name=CustomerID]").val(), EmployeeID : $("input[name=EmployeeID]").val(), ShiftID:  $("input[name=ShiftID]").val(), OrderNumber : OrderHeader.OrderNumber, TerminalID : $("input[name=TerminalID]").val(), TotalAmount : $("input[name=SubTotal]").val(), TransDateTime : $("input[name=TransactionDate]").val() };
+
+     var ShiftDetails = await APICall("POST", `index.php?page=api&module=forms&path=API/Ecommerce/Ecommerce&action=procedure&procedure=insertShiftData&session_id=${session_id}`, ShiftData);
+    
+     serverProcedureAnyCall("shoppingcart", "shoppingCartClean", undefined, function(cdata, error){
+        window.location = "index.php#/?page=forms&action=transactionlog";
+    });
+     
+     //console.log(data, error);
+ });
+ $("#processorder").click(function(){     
+     $('#confirmDialog').modal('show');
+ });
+ <?php endif; ?> 
+ function shoppingCartFormRender(shoppingCart){
+     var element = $("#shoppingCartFormList"), _html = '', itemsCounter = 0, ind, subtotal = 0,
+         items = shoppingCart.items;
+     
+     for(ind in items){
+         _html += "<tr>";
+         //         _html += "<td style=\"text-align:left;\">" + items[ind].ItemID + "</td>";
+         _html += "<td style=\"text-align:left;\">" + items[ind].ItemName + "</td>";
+         _html += "<td style=\"text-align:left;\">" + items[ind].ItemDescription + "</td>";
+         _html += "<td style=\"text-align:left;\">" + items[ind].ItemLongDescription + "</td>";
+         _html += "<td style=\"text-align:right;\">" + items[ind].counter + "</td>";
+         _html += "<td style=\"text-align:right;\">" + formatCurrency(items[ind].Price) + "</td>";
+         _html += "<td style=\"text-align:right;\">" + formatCurrency(items[ind].Price * items[ind].counter) + "</td></tr>";
+         itemsCounter++;
+         subtotal += items[ind].Price * items[ind].counter;
+     }
+     //     _html += "<tr><td></td><td><div class=\"subtotal-text\">Subtotal: </div><div class=\"subtotal-price\">" + subtotal + "</div></td><td></td></tr>";
+     element.html(_html);
+     $("#subtotal").html('$' + formatCurrency(subtotal));
+     $("#taxtotal").html('$0');
+     
+     var discount_amt = localStorage.getItem('discount_amount');
+
+     subtotal = subtotal - formatCurrency(discount_amt);
+
+     $("#grandtotal").html('$' + formatCurrency(subtotal));
+     checkoutSubtotal = subtotal;
+
+     $('#discount_amount').html('$' + formatCurrency(discount_amt));
+
+     $('#txtSubTotal').val(subtotal);
+     $("#shoppingCartTopbarCounter").html(itemsCounter + " Item(s)");
+ }
+
+ serverProcedureAnyCall("shoppingcart", "shoppingCartGetCart", undefined, function(data, error){
+     if(data)
+         shoppingCartFormRender(checkoutItems = JSON.parse(data));
+     else
+         console.log("login failed");
+ });
+</script>
+
 <div id="confirmDialog" class="modal fade  bs-example-modal-lg" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-sm modal-dialog-center" style="width:400px;" role="document">
         <div class="modal-content">
@@ -58,7 +175,7 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php if(!key_exists("Customer", $user)): ?>
+<?php if(!key_exists("Employee", $user)): ?>
     <div style="font-size:20pt; color:red; text-align:center;padding:20px">
         <?php echo $translation->translateLabel("You should login to check out the cart"); ?>    
     </div>
@@ -67,7 +184,7 @@
     <div class="container">
         <div class="row">
             <form action="#" id="checkoutForm"  onsubmit="return false">
-                <div class="col-lg-6 col-md-6">
+                <!-- <div class="col-lg-6 col-md-6">
                     <div class="checkbox-form">
                         <h3>
                             <?php echo $translation->translateLabel("Bill To"); ?>
@@ -82,7 +199,7 @@
                                             </label>
                                         </div>
                                         <div class="col-md-8" >
-                                            <input type="text" style="height:30px" name="bill<?php echo $fieldName; ?>" placeholder="" value="<?php echo (key_exists("Customer", $user) ? $user["Customer"]->$fieldName : ""); ?>" />
+                                            <input type="text" style="height:30px" name="bill<?php echo $fieldName; ?>" placeholder="" value="<?php echo ($customer[0]->$fieldName); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -109,18 +226,18 @@
                                             </label>
                                         </div>
                                         <div  class="col-md-8" >
-                                            <input type="text" style="height:30px" name="ship<?php echo $fieldName; ?>" placeholder="" value="<?php echo (key_exists("Customer", $user) ? $user["Customer"]->$fieldName : ""); ?>" />
+                                            <input type="text" style="height:30px" name="ship<?php echo $fieldName; ?>" placeholder="" value="<?php echo ($customer[0]->$fieldName); ?>" />
                                         </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="col-lg-12 col-md-12">
                     <div class="your-order">
                         <h3>
-                            <?php echo $translation->translateLabel("Your Order"); ?></h3>
+                            <?php echo $translation->translateLabel("OrderDetails"); ?></h3>
                         <div class="your-order-table table-responsive">
                             <table class="table table-responsible checkout-items-table">
                                 <thead>
@@ -164,6 +281,15 @@
                                             <span class="amount" id="taxtotal">$0.00</span>
                                         </td>
                                     </tr>
+
+                                    <tr class="cart-subtotal">
+                                        <th>
+                                            <?php echo $translation->translateLabel("Discount Amount"); ?>
+                                        </th>
+                                        <td>
+                                            <span class="amount" id="discount_amount">$0.00</span>
+                                        </td>
+                                    </tr>
                                     <tr class="order-total">
                                         <th>
                                             <?php echo $translation->translateLabel("Grand Total"); ?>
@@ -176,9 +302,10 @@
                             </table>
                         </div>
                         <div class="payment-method">
-                            <div class="country-select">
+                            <!-- <div class="country-select">
                                 <label>
-                                    <?php echo $translation->translateLabel("Payment Method"); ?> <!--  <span class="required">*</span></label> -->
+                                    <?php echo $translation->translateLabel("Payment Method"); ?> 
+                                    
                                 </label>
                                 <select name="PaymentMethod">
                                     <?php foreach($paymentMethods as $paymentName=>$def): ?>
@@ -197,8 +324,14 @@
                                         <option value="<?php echo $def->value ?>"><?php echo $def->title ?></option>
                                     <?php endforeach; ?>
                                 </select>
-                            </div>
-                            <?php if(key_exists("Customer", $user)): ?>
+                            </div> -->
+                            <?php if(key_exists("Employee", $user)): ?>
+                                <input type="hidden" name="CustomerID" id="txtCustomerID" value="<?php echo $customer[0]->CustomerID; ?>" />
+                                <input type="hidden" name="EmployeeID" id="txtEmployeeID" value="<?php echo $user['Employee']->EmployeeID; ?>" />
+                                <input type="hidden" name="ShiftID" id="txtShiftID" value="<?php echo $user['ShiftID']; ?>"/>
+                                <input type="hidden" name="TerminalID" id="txtShiftID" value="<?php echo $user['TerminalID']; ?>"/>
+                                <input type="hidden" name="SubTotal" id="txtSubTotal" value="" />
+                                <input type="hidden" name="TransactionDate" value="<?php echo date('Y-m-d h:i:s'); ?>" />
                                 <div class="order-button-payment" style="margin-top:100px">
                                     <input type="submit" id="processorder" value="<?php echo $translation->translateLabel("Process Order"); ?>" style="font-size:18pt" />
                                 </div>
@@ -210,93 +343,3 @@
         </div>
     </div>
 </div>
-<script>
- var checkoutSubtotal = 0,
-     checkoutItems;
- <?php if(key_exists("Customer", $user)): ?>
- $("#confirmButton").click(async function(){
-     //var form = $("#checkoutForm");
-     var values = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderScreens/ViewOrders&action=procedure&procedure=getNewItemAllRemote&session_id=${session_id}`, {
-         id : "",                                                                                                                    type : "..fields"
-     });
-     values.CustomerID = "<?php echo $user["Customer"]->CustomerID; ?>";
-     values.ShippingName = $("input[name=shipCustomerName]").val();
-     values.ShippingAddress1 = $("input[name=shipCustomerAddress1]").val();
-     values.ShippingAddress2 = $("input[name=shipCustomerAddress2]").val();
-     values.ShippingAddress3 = $("input[name=shipCustomerAddress3]").val();
-     values.ShippingCounty = $("input[name=shipCustomerCountry]").val();
-     values.ShippingState = $("input[name=shipCustomerState]").val();
-     values.ShippingCity = $("input[name=shipCustomerCity]").val();
-     values.ShippingZip = $("input[name=shipCustomerZip]").val();
-     values.ShipMethodID = $("input[name=ShipMethod]").val();
-     values.PaymentMethodID = $("input[name=PaymentMethod]").val();
-     values.Subtotal = values.Total = values.BalanceDue = values.TaxableSubTotal = checkoutSubtotal;
-     //creating order header
-     var OrderHeader = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderScreens/ViewOrders&action=procedure&procedure=insertItemRemote&session_id=${session_id}`, values);
-     //getting template data for order detail
-     var values = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderProcessing/ViewOrdersDetail&action=procedure&procedure=getNewItemAllRemote&session_id=${session_id}`, {
-         id : "",                                                                                                                    type : "..fields"
-     });
-     var ind, orderDetails = [], orderDetail, items = checkoutItems.items;
-     for(ind in items){
-         orderDetail = Object.assign({}, values);
-         orderDetail.ItemID = items[ind].ItemID;
-         //       console.log(items[ind].ItemID);
-         orderDetail.OrderNumber = OrderHeader.OrderNumber;
-         orderDetail.OrderQty = items[ind].counter;
-         orderDetail.Description = items[ind].ItemDescription;
-         orderDetail.ItemCost = orderDetail.ItemUnitPrice = items[ind].Price;
-         orderDetails.push(orderDetail);
-     }
-     //      console.log(JSON.stringify(orderDetails, null, 3));
-     //creating order detail records
-     var OrderDetails = await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderProcessing/ViewOrdersDetail&action=procedure&procedure=insertItemsRemote&session_id=${session_id}`, orderDetails);
-     //values = JSON.parse(data);
-     //recalculation order header
-     await APICall("POST", `index.php?page=api&module=forms&path=AccountsReceivable/OrderScreens/ViewOrders&action=procedure&procedure=Recalc&session_id=${session_id}`, { OrderNumber : OrderHeader.OrderNumber});
-     $("#processorder").val("<?php echo $translation->translateLabel("Print"); ?>");
-     $("#processorder").off("click");
-     $("#processorder").click(function(){
-         Object.assign(document.createElement('a'), { target: '_blank', href: linksMaker.makeEnterpriseXDocreportsLink("order", OrderHeader.OrderNumber)}).click();
-     });
-     Object.assign(document.createElement('a'), { target: '_blank', href: linksMaker.makeEnterpriseXDocreportsLink("order", OrderHeader.OrderNumber)}).click();
-     window.location = "index.php#/?page=forms&action=account";
-     //console.log(data, error);
- });
- $("#processorder").click(function(){
-     $('#confirmDialog').modal('show');
- });
- <?php endif; ?> 
- function shoppingCartFormRender(shoppingCart){
-     var element = $("#shoppingCartFormList"), _html = '', itemsCounter = 0, ind, subtotal = 0,
-         items = shoppingCart.items;
-     
-     for(ind in items){
-         _html += "<tr>";
-         //         _html += "<td style=\"text-align:left;\">" + items[ind].ItemID + "</td>";
-         _html += "<td style=\"text-align:left;\">" + items[ind].ItemName + "</td>";
-         _html += "<td style=\"text-align:left;\">" + items[ind].ItemDescription + "</td>";
-         _html += "<td style=\"text-align:left;\">" + items[ind].ItemLongDescription + "</td>";
-         _html += "<td style=\"text-align:right;\">" + items[ind].counter + "</td>";
-         _html += "<td style=\"text-align:right;\">" + formatCurrency(items[ind].Price) + "</td>";
-         _html += "<td style=\"text-align:right;\">" + formatCurrency(items[ind].Price * items[ind].counter) + "</td></tr>";
-         itemsCounter++;
-         subtotal += items[ind].Price * items[ind].counter;
-     }
-     //     _html += "<tr><td></td><td><div class=\"subtotal-text\">Subtotal: </div><div class=\"subtotal-price\">" + subtotal + "</div></td><td></td></tr>";
-     element.html(_html);
-     $("#subtotal").html('$' + formatCurrency(subtotal));
-     $("#taxtotal").html('$0');
-     $("#grandtotal").html('$' + formatCurrency(subtotal));
-     checkoutSubtotal = subtotal;
-
-     $("#shoppingCartTopbarCounter").html(itemsCounter + " Item(s)");
- }
-
- serverProcedureAnyCall("shoppingcart", "shoppingCartGetCart", undefined, function(data, error){
-     if(data)
-         shoppingCartFormRender(checkoutItems = JSON.parse(data));
-     else
-         console.log("login failed");
- });
-</script>

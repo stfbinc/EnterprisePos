@@ -37,7 +37,7 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-<?php if(!key_exists("Customer", $user)): ?>
+<?php if(!key_exists("Employee", $user)): ?>
     <div style="font-size:20pt; color:red; text-align:center;padding:20px">
         <?php echo $translation->translateLabel("You should login to check out the cart"); ?>    
     </div>

@@ -1,4 +1,16 @@
 <?php 
+$user = Session::get('user');
+
+if(!key_exists("Employee", $user)):  ?>
+    <script>
+        var reload_url = "index.php#/?page=index&action=login";
+        window.location.href = reload_url;
+    </script>
+<?php 
+    endif;
+?>
+
+<?php 
 
 if(isset($_GET['CustomerID']) && $_GET['CustomerID']) {
 	$user = Session::get('user');
@@ -81,6 +93,34 @@ if(isset($_GET['CustomerID']) && $_GET['CustomerID']) {
 			
 				<div class="order-button-payment" style="margin-top:50px">
 					<input type="button" id="processorder" value="<?php echo $translation->translateLabel("Checkout"); ?>" style="font-size:18pt" onclick="window.location = '#/?page=forms&action=poscart'" />
+				</div>
+		</div>
+
+
+		<p>&nbsp;</p>
+		<div id="Families">
+				<div class="well">
+					<h3> <span id="ContentPlaceHolder_ctl00_lblHeader">Item Family</span> </h3>
+
+					<div class="scroll familyData">
+						<div>
+							<?php $families = $data->getFamilies(); 
+
+							foreach($families as $name => $familyData) { ?>
+
+							<div class="thumbnailFixed">
+								<span class="thumbnailLabel"><?php echo $name; ?></span>
+								<input type="image" name="" class="imageButton" src="<?php echo 'assets/img/'.$familyData->FamilyPictureURL; ?>" onClick="getFamilyCategories('<?php echo $familyData->ItemFamilyID; ?>'); ">
+							</div>
+								
+
+							<?php 
+							}
+							?>
+
+							
+						</div>
+					</div>
 				</div>
 		</div>
 </div>
@@ -184,6 +224,81 @@ function doneTyping () {
 	}
 	
 }
+
+
+		function getFamilyCategories(ItemFamilyID){
+
+            if(ItemFamilyID) {
+                var formData = new FormData();
+
+                formData.append('ItemFamilyID', ItemFamilyID);
+
+                $.ajax({
+                    url : 'index.php/?page=forms&action=poscart&procedure=getPOSCategories',
+                    type : 'POST',
+                    data : formData,
+                    processData: false,  // tell $ not to process the data
+                    contentType: false,  // tell $ not to set contentType
+                    error: function(e) {
+                        var errors = JSON.parse(e.responseText);
+                        alert(errors.message);
+                    },
+                    success : function(res) {
+                        try {
+                            var response = JSON.parse(res) ;
+                            if(response.success){
+                                $('.familyData').html(response.html);
+                            }
+                    }
+                        catch (e){}
+                    }
+                });
+            }
+
+        }
+
+        function getItems(catItemID){
+
+            if(catItemID) {
+                var formData = new FormData();
+
+                formData.append('catItemID', catItemID);
+
+                $.ajax({
+                    url : 'index.php/?page=forms&action=poscart&procedure=getPOSItems',
+                    type : 'POST',
+                    data : formData,
+                    processData: false,  // tell $ not to process the data
+                    contentType: false,  // tell $ not to set contentType
+                    error: function(e) {
+                        var errors = JSON.parse(e.responseText);
+                        alert(errors.message);
+                    },
+                    success : function(res) {
+                        try {
+                            var response = JSON.parse(res) ;
+                            if(response.success){
+                                $('.familyData').html(response.html);
+                            }
+                    }
+                        catch (e){}
+                    }
+                });
+            }
+
+        }
+
+        function addItemToCart(itemID){
+            $('#upcfinder').hide();
+            
+            serverProcedureAnyCall("shoppingcart", "shoppingCartAddItem", "ItemID=" + itemID + (typeof(qty) != 'undefined' ? "&qty=" + qty : ""), function(data, error){
+                if(data){
+                    location.reload();
+                }
+                else
+                    console.log("login failed");
+            });
+        }
 </script>
 
 <style>
@@ -204,3 +319,72 @@ function doneTyping () {
 		z-index: 9999;
 	}
 </style>
+
+<style>
+                .information > .form-group > label {
+                    font-weight: 700;
+                }
+
+                .calButton1_4 {
+                    margin: 1.25%;
+                    width: 20%;
+                    height: 40px;
+                    border-radius: 20px;
+                    min-width: 40px;
+                    text-align: center;
+                }
+
+                .calButton1_2 {
+                    margin: 2.5%;
+                    width: 40%;
+                    height: 80px;
+                    border-radius: 20px;
+                    min-width: 80px;
+                    text-align: center;
+                }
+
+                .funcBtn {
+                    display: block;
+                    width: 100%;
+                    border-radius: 10px;
+                    text-wrap: normal;
+                    margin-bottom: 10px;
+                }
+
+                .scroll {
+                    overflow-x: auto;
+                }
+
+                .thumbnailFixed {
+                    float: left;
+                    margin-right: 18px;
+                    margin-bottom: 20px;
+                }
+                .thumbnailLabel {
+                    text-align: left;
+                    padding-left: 10px;
+                    color: rgb(0, 0, 0);
+                    display: block;
+                    font-size: 16px;
+                    font-weight: bold;
+                    height: 16px;
+                    /* width: 120px; */
+                    margin-bottom: 10px;
+                }
+
+                .imageButton {
+                    /* margin: auto; */
+                    margin-left: 10px;
+                    Width: 120px;
+                    height: 120px;
+                    display: block;
+                    border-style: solid !important;
+                    border-color: #aaa #666 #666 #aaa !important;
+                    border-width: 1px 2px 2px 2px !important;
+                    /* background: #ccc !important; */
+                    text-align: center !important;
+                    /* margin-right: 10px !important; */
+                    /* margin-bottom: 10px !important; */
+                    box-shadow: 3px 3px 8px #888888 !important;
+                }
+            </style>

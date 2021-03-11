@@ -107,8 +107,8 @@
                 }
                 else {
 
-                    location.reload();
-                    //reload_url = "index.php#/?page=forms&action=searchcustomers";
+                    //location.reload();
+                    reload_url = "index.php#/?page=forms&action=searchcustomers";
                 }
                 reload = true;    
     

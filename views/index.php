@@ -214,10 +214,10 @@
 
 	<div id="content">
 		<?php
-			if(key_exists("Employee", $user))
-				$api->get("forms", "searchcustomers");
-			else
+			if(!key_exists("Employee", $user))
 				$api->get("index", "login");
+			else if( !isset($_GET['action']) || (isset($_GET['action']) && $_GET['action'] != 'searchcustomers' ))
+	 			$api->get("forms", "searchcustomers");
 		?>
 	</div>
 	
