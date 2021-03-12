@@ -166,7 +166,11 @@
                                     <th><?php echo $translation->translateLabel("Total"); ?></th>
                                 </thead>
                                 <tbody id="shoppingCartFormList" >
-                                    <?php foreach($transactions as $transaction): ?>
+                                    <?php 
+                                    if($transactions) {
+
+                                    
+                                    foreach($transactions as $transaction): ?>
                                         <tr>
                                             <td>
                                                 <a href="<?php echo $linksMaker->makeEnterpriseXDocreportsLink("order", $transaction->OrderNumber) ?>" style="color:blue;" target="_blank"><?php echo $transaction->TrackingNumber ? $transaction->TrackingNumber : $transaction->OrderNumber; ?></a>
@@ -187,7 +191,10 @@
                                                 <?php echo formatCurrency($transaction->Total); ?>
                                             </td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php endforeach; 
+                                    
+                                    }
+                                    ?>
                                 </tbody>
                             </table>                   
                         </div>

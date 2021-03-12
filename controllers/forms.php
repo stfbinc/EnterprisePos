@@ -74,9 +74,11 @@ class formsController{
             $data = new APIProxy();
             break;
         case "openshift":
+            $shiftID = '';
             if($user){
                 $empID = $user['Employee']->EmployeeID;
                 $terminalID = $user['TerminalID'];
+                $shiftID = $user['ShiftID'];
             }
             break;
         case "checkout":

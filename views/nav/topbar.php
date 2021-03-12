@@ -270,9 +270,9 @@
                                 <ul class="dropdown-menu customer-popup dropdown-chooser" aria-labelledby="adminDropdown" aria-expanded="false">
                                     <li><a href="#/?page=forms&action=transactionlog" id="transLogButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Transaction Log"); ?></a>
                                     </li>
-                                    <li><a href="javascript:;" id="orderLogButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Order Log"); ?></a>
+                                    <li><a href="#/?page=forms&action=orderlog" id="orderLogButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Order Log"); ?></a>
                                     </li>
-                                    <li><a href="javascript:;" id="shiftOpenButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Open Shift"); ?></a>
+                                    <li><a href="#/?page=forms&action=openshift" id="shiftOpenButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Open Shift"); ?></a>
                                     </li>
                                     <li><a href="#/?page=forms&action=closeshift" id="shiftCloseButton" data-value="logout" class="lang-item"> <?php echo $translation->translateLabel("Close Shift"); ?></a>
                                     </li>
